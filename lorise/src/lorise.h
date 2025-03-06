@@ -60,6 +60,48 @@ void TacticIcon(
         color);
 }
 
+/**
+ * @brief Draws the grid background.
+ */
+void Grid(ImVec2 offset)
+{
+    const float cell_size = 100.0f;
+    const ImU32 grid_color = IM_COL32(255, 255, 255, 20);
+    ImVec2 window_dims = ImGui::GetWindowSize();
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // vertical lines
+    for (int ii = 0;
+        ii < window_dims.x / cell_size;
+        ii++)
+    {
+        float x = ii * cell_size;
+        ImVec2 top = ImVec2(x, 0);
+        ImVec2 bottom = ImVec2(x, window_dims.y);
+        draw_list->AddLine(
+            top,
+            bottom,
+            grid_color);
+    }
+
+    // horizontal lines
+    for (int jj = 0;
+        jj < window_dims.y / cell_size;
+        jj++)
+    {
+        float y = jj * cell_size;
+        ImVec2 left = ImVec2(0, y);
+        ImVec2 right = ImVec2(window_dims.x, y);
+        draw_list->AddLine(
+            left,
+            right,
+            grid_color);
+    }
+}
+
+/**
+ * @brief Draws the top down environmental view.
+ */
 void LoRISE(
     bool& show_lorise,
     const ImGuiIO& io)
@@ -78,6 +120,10 @@ void LoRISE(
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
+
+    // Some offset from panning
+    ImVec2 offset;
+    Grid(offset);
 
     ImVec2 mouse_pos = ImGui::GetMousePos();
 
