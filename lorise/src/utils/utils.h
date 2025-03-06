@@ -18,10 +18,10 @@ void TextAligned(
     const float align = 0.0f,
     const ImVec4 color = ImVec4(1, 1, 1, 1))
 {
-    ImVec2 windowDims = ImGui::GetWindowSize();
-    ImVec2 textDims = ImGui::CalcTextSize(text.c_str());
-    ImGui::SetCursorPosX((windowDims.x - textDims.x) * align);
-    ImGui::SetCursorPosY((windowDims.y - textDims.y) * align);
+    ImVec2 window_dims = ImGui::GetWindowSize();
+    ImVec2 text_dims = ImGui::CalcTextSize(text.c_str());
+    ImGui::SetCursorPosX((window_dims.x - text_dims.x) * align);
+    ImGui::SetCursorPosY((window_dims.y - text_dims.y) * align);
     ImGui::TextColored(
         color,
         text.c_str());
@@ -36,8 +36,8 @@ void ButtonAligned(
     const std::function<void()>& callback,
     const float align = 0.0f)
 {
-    ImVec2 windowDims = ImGui::GetWindowSize();
-    ImGui::SetCursorPosX((windowDims.x - size.x) * align);
+    ImVec2 window_dims = ImGui::GetWindowSize();
+    ImGui::SetCursorPosX((window_dims.x - size.x) * align);
     if (ImGui::Button(
             text.c_str(),
             size) == true)
