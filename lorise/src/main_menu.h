@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 #include "imgui.h"
@@ -12,15 +14,10 @@
 
 #include "utils/utils.h"
 
-void Launch()
-{
-    // Close main menu window
-    // Open LO-RISE window
-}
-
 void MainMenu(
     bool& show_main_menu,
-    ImGuiIO& io)
+    bool& show_lorise,
+    const ImGuiIO& io)
 {
     if (show_main_menu == false)
     {
@@ -41,7 +38,7 @@ void MainMenu(
     ImGui::SetNextWindowPos(ImVec2(0, 0));
 
     ImGui::Begin(
-        "LORISE",
+        "Main Menu",
         &show_main_menu,
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoResize |
@@ -68,10 +65,17 @@ void MainMenu(
 
     ImGui::NewLine();
 
+    // What happens when launch button is pressed
+    auto launch_callback = [&show_main_menu, &show_lorise] ()
+    {
+        show_main_menu = false;
+        show_lorise = true;
+    };
+
     ButtonAligned(
         "launch",
         ImVec2(50, 0),
-        &Launch,
+        launch_callback,
         0.5f);
 
     // ImVec2 windowDims = ImGui::GetWindowSize();
