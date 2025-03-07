@@ -24,6 +24,7 @@ void MainMenu(
         return;
     }
 
+    // // This should go outside of the main loop in main.cpp
     // int my_image_width = 0;
     // int my_image_height = 0;
     // GLuint my_image_texture = 0;
@@ -50,14 +51,6 @@ void MainMenu(
     //         my_image_width, 
     //         my_image_height));
 
-    // Centered title
-    // std::string title = "[LO-RISE]";
-    // ImVec2 titleDims = ImGui::CalcTextSize(title.c_str());
-    // ImGui::SetCursorPosX((windowDims.x - titleDims.x) * 0.5f);
-    // ImGui::SetCursorPosY((windowDims.y - titleDims.y) * 0.5f);
-    // ImGui::TextColored(
-    //     ImVec4(1, 1, 0, 1),
-    //     title.c_str());
     TextAligned(
         "[LO-RISE]",
         0.5f,
@@ -77,16 +70,6 @@ void MainMenu(
         ImVec2(50, 0),
         launch_callback,
         0.5f);
-
-    // ImVec2 windowDims = ImGui::GetWindowSize();
-    // std::string btnText = "launch";
-    // ImVec2 launchDims = ImGui::CalcTextSize(btnText.c_str());
-    // ImGui::NewLine();
-    // ImGui::SetCursorPosX((windowDims.x - launchDims.x) * 0.5f);
-    // if (ImGui::Button(btnText.c_str()) == true)
-    // {
-    //     Launch();
-    // }
 
     ImGui::End();
 }

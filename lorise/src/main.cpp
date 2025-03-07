@@ -12,6 +12,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include <stdio.h>
+#include <vector>
 #include "main_menu.h"
 #include "lorise.h"
 
@@ -116,13 +117,41 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
 
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
     // Our state
     bool show_main_menu = true;                 // Display main menu
     bool show_lorise = false;                   // Display Lo-RISE window
     ImVec2 camera_pan = ImVec2(0, 0);           // Finalized camera pan offset
     ImVec2 mouse_drag_start = ImVec2(-1, -1);   // Initial point of a mouse drag
 
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    std::vector<Agent> agents = {               // List of agents to visualize
+        {
+            "ARNOLD",
+            false,
+            false,
+            ImVec2(400, 500),
+            Agent::ALIVE_COLOR
+        },
+        {
+            "BOB",
+            true,
+            false,
+            ImVec2(300, 300),
+            Agent::TASKED_COLOR
+        }};
+
+    std::vector<Tactic> tactics = {             // List of tactics to visualize
+        {
+            "ISR",
+            ImVec2(100, 100),
+            Tactic::WIP_COLOR
+        },
+        {
+            "ATTACK",
+            ImVec2(100, 400),
+            Tactic::FAILED_COLOR
+        }};
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -161,6 +190,7 @@ int main(int, char**)
 
         if (show_lorise == true)
         {
+            // Handle input before drawing environment
             ImVec2 drag = Pan(
                 camera_pan,
                 mouse_drag_start);
@@ -174,7 +204,9 @@ int main(int, char**)
             LoRISE(
                 show_lorise,
                 offset,
-                io);
+                io,
+                agents,
+                tactics);
         }
 
         // Rendering

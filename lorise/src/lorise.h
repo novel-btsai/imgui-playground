@@ -8,63 +8,102 @@
 #include "utils/utils.h"
 
 /**
+ * @brief Agent info. Would be replaced by the actual agent class.
+ */
+struct Agent
+{
+    static const ImU32 DEAD_COLOR = IM_COL32(255, 0, 0, 255);
+    static const ImU32 ALIVE_COLOR = IM_COL32(0, 255, 0, 255);
+    static const ImU32 TASKED_COLOR = IM_COL32(3, 252, 236, 255);
+
+    std::string name;
+    bool air;
+    bool dead;
+    ImVec2 pos;
+    ImU32 color;
+};
+
+/**
  * @brief Draw an agent at the designated location.
  */
-void Agent(
-    ImVec2 pos,
-    std::string name,
-    bool air,
-    ImU32 color)
+void DrawAgent(
+    const Agent& agent,
+    const ImVec2& offset)
 {
     // Size of the agent icon
     const float size = 10.0f;
 
+    // Apply positional offset
+    ImVec2 pos = ImVec2(
+        agent.pos.x - offset.x,
+        agent.pos.y - offset.y);
+
     // Name needs to be centered below the given position
-    ImVec2 text_dims = ImGui::CalcTextSize(name.c_str());
+    ImVec2 text_dims = ImGui::CalcTextSize(agent.name.c_str());
     ImGui::SetCursorPosX(pos.x - (text_dims.x / 2));
-    ImGui::SetCursorPosY(pos.y - (text_dims.y / 2) + (size * 1.5f));
+    ImGui::SetCursorPosY(pos.y - (text_dims.y / 2) + (size * 2));
     ImGui::TextColored(
-        (ImColor)color,
-        name.c_str());
+        (ImColor)agent.color,
+        agent.name.c_str());
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddNgon(
         pos,
         size,
-        color,
-        air ? 3 : 4);
+        agent.color,
+        agent.air ?
+            3 : 
+            4);
 }
+
+/**
+ * @brief Tactic info. Would be replaced by the actual tactic class.
+ */
+struct Tactic
+{
+    static const ImU32 COMPLETE_COLOR = IM_COL32(0, 255, 0, 255);
+    static const ImU32 FAILED_COLOR = IM_COL32(255, 0, 0, 255);
+    static const ImU32 WIP_COLOR = IM_COL32(255, 255, 255, 255);
+
+    std::string name;
+    ImVec2 pos;
+    ImU32 color;
+};
 
 /**
  * @brief Draw a tactic icon at the designated location.
  */
-void TacticIcon(
-    ImVec2 pos,
-    std::string name,
-    ImU32 color)
+void DrawTacticIcon(
+    const Tactic& tactic,
+    const ImVec2& offset)
 {
     // Size of the tactic icon
     const float size = 20.0f;
 
+    // Apply positional offset
+    ImVec2 pos = ImVec2(
+        tactic.pos.x - offset.x,
+        tactic.pos.y - offset.y);
+
     // Name needs to be centered on given position
-    ImVec2 text_dims = ImGui::CalcTextSize(name.c_str());
+    ImVec2 text_dims = ImGui::CalcTextSize(tactic.name.c_str());
     ImGui::SetCursorPosX(pos.x - (text_dims.x / 2));
     ImGui::SetCursorPosY(pos.y - (text_dims.y / 2));
     ImGui::TextColored(
-        (ImColor)color,
-        name.c_str());
+        (ImColor)tactic.color,
+        tactic.name.c_str());
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddCircle(
         pos,
         size,
-        color);
+        tactic.color);
 }
 
 /**
  * @brief Draws the grid background.
  */
-void Grid(const ImVec2& offset)
+void DrawGrid(const ImVec2& offset)
 {
     const float cell_size = 100.0f;
     const ImU32 grid_color = IM_COL32(255, 255, 255, 20);
@@ -168,7 +207,9 @@ void Grid(const ImVec2& offset)
 void LoRISE(
     bool& show_lorise,
     ImVec2& offset,
-    const ImGuiIO& io)
+    const ImGuiIO& io,
+    const std::vector<Agent>& agents,
+    const std::vector<Tactic>& tactics)
 {
     if (show_lorise == false)
     {
@@ -185,28 +226,23 @@ void LoRISE(
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
 
-    ImGui::Text(
-        "Offset: %f, %f",
-        offset.x,
-        offset.y);
-
-    Grid(offset);
+    DrawGrid(offset);
 
     ImVec2 mouse_pos = ImGui::GetMousePos();
 
-    // Would want to loop through any active/idle tactics
-    // and place their respective icons down, same with agents
-    TacticIcon(
-        mouse_pos,
-        "ISR",
-        IM_COL32(255, 0, 0, 255));
+    for (Agent agent : agents)
+    {
+        DrawAgent(
+            agent,
+            offset);
+    }
 
-    mouse_pos.y -= 50.0f;
-    Agent(
-        mouse_pos,
-        "BOB",
-        false,
-        IM_COL32(0, 255, 0, 255));
+    for (Tactic tactic : tactics)
+    {
+        DrawTacticIcon(
+            tactic,
+            offset);
+    }
 
     ImGui::End();
 }
