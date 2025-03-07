@@ -119,7 +119,7 @@ int main(int, char**)
     // Our state
     bool show_main_menu = true;                 // Display main menu
     bool show_lorise = false;                   // Display Lo-RISE window
-    ImVec2 pan_offset = ImVec2(0, 0);           // Finalized camera pan offset
+    ImVec2 camera_pan = ImVec2(0, 0);           // Finalized camera pan offset
     ImVec2 mouse_drag_start = ImVec2(-1, -1);   // Initial point of a mouse drag
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -162,14 +162,14 @@ int main(int, char**)
         if (show_lorise == true)
         {
             ImVec2 drag = Pan(
-                pan_offset,
+                camera_pan,
                 mouse_drag_start);
 
             // Offset passed to visuals is sum of finalized
             // and in progress camera panning
             ImVec2 offset = ImVec2(
-                drag.x + pan_offset.x,
-                drag.y + pan_offset.y);
+                drag.x + camera_pan.x,
+                drag.y + camera_pan.y);
 
             LoRISE(
                 show_lorise,

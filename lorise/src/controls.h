@@ -30,8 +30,8 @@ ImVec2 Pan(
         // Track mouse drag movement
         else
         {
-            drag.x = mouse_pos.x - mouse_start.x;
-            drag.y = mouse_pos.y - mouse_start.y;
+            drag.x = mouse_start.x - mouse_pos.x;
+            drag.y = mouse_start.y - mouse_pos.y;
         }
     }
     else if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) == true &&
@@ -39,8 +39,8 @@ ImVec2 Pan(
         mouse_start.y >= 0)
     {
         // Add the drag to offset to finalize
-        offset.x += mouse_pos.x - mouse_start.x;
-        offset.y += mouse_pos.y - mouse_start.y;
+        offset.x += mouse_start.x - mouse_pos.x;
+        offset.y += mouse_start.y - mouse_pos.y;
         drag.x = 0;
         mouse_start = ImVec2(-1, -1);
     }
