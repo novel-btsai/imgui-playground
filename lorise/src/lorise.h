@@ -4,6 +4,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "controls.h"
 #include "utils/utils.h"
 
 /**
@@ -63,7 +64,7 @@ void TacticIcon(
 /**
  * @brief Draws the grid background.
  */
-void Grid(ImVec2 offset)
+void Grid(const ImVec2& offset)
 {
     const float cell_size = 100.0f;
     const ImU32 grid_color = IM_COL32(255, 255, 255, 20);
@@ -76,8 +77,15 @@ void Grid(ImVec2 offset)
         ii++)
     {
         float x = ii * cell_size;
-        ImVec2 top = ImVec2(x, 0);
-        ImVec2 bottom = ImVec2(x, window_dims.y);
+
+        ImVec2 top = ImVec2(
+            x + offset.x, 
+            0 + offset.y);
+
+        ImVec2 bottom = ImVec2(
+            x + offset.x, 
+            window_dims.y + offset.y);
+
         draw_list->AddLine(
             top,
             bottom,
@@ -90,8 +98,15 @@ void Grid(ImVec2 offset)
         jj++)
     {
         float y = jj * cell_size;
-        ImVec2 left = ImVec2(0, y);
-        ImVec2 right = ImVec2(window_dims.x, y);
+
+        ImVec2 left = ImVec2(
+            0 + offset.x, 
+            y + offset.y);
+
+        ImVec2 right = ImVec2(
+            window_dims.x + offset.x,
+            y + offset.y);
+
         draw_list->AddLine(
             left,
             right,
@@ -104,6 +119,7 @@ void Grid(ImVec2 offset)
  */
 void LoRISE(
     bool& show_lorise,
+    ImVec2& offset,
     const ImGuiIO& io)
 {
     if (show_lorise == false)
@@ -121,8 +137,11 @@ void LoRISE(
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
 
-    // Some offset from panning
-    ImVec2 offset;
+    ImGui::Text(
+        "Offset: %f, %f",
+        offset.x,
+        offset.y);
+
     Grid(offset);
 
     ImVec2 mouse_pos = ImGui::GetMousePos();
