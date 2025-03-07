@@ -228,8 +228,6 @@ void LoRISE(
 
     DrawGrid(offset);
 
-    ImVec2 mouse_pos = ImGui::GetMousePos();
-
     for (Agent agent : agents)
     {
         DrawAgent(
