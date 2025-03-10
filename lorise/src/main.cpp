@@ -120,12 +120,11 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Our state
-    bool show_main_menu = true;                 // Display main menu
-    bool show_lorise = false;                   // Display Lo-RISE window
-    ImVec2 camera_pan = ImVec2(0, 0);           // Finalized camera pan offset
-    ImVec2 mouse_drag_start = ImVec2(-1, -1);   // Initial point of a mouse drag
+    bool show_main_menu = true;         // Display main menu
+    bool show_lorise = false;           // Display Lo-RISE window
+    ImVec2 camera_pan = ImVec2(0, 0);   // Finalized camera pan offset
 
-    std::vector<Agent> agents = {               // List of agents to visualize
+    std::vector<Agent> agents = {       // List of agents to visualize
         {
             "ARNOLD",
             false,
@@ -141,7 +140,7 @@ int main(int, char**)
             Agent::TASKED_COLOR
         }};
 
-    std::vector<Tactic> tactics = {             // List of tactics to visualize
+    std::vector<Tactic> tactics = {     // List of tactics to visualize
         {
             "ISR",
             ImVec2(100, 100),
@@ -191,15 +190,13 @@ int main(int, char**)
         if (show_lorise == true)
         {
             // Handle input before drawing environment
-            ImVec2 drag = Pan(
-                camera_pan,
-                mouse_drag_start);
-
-            // Offset passed to visuals is sum of finalized
-            // and in progress camera panning
+            ImVec2 drag = Pan(camera_pan);
+            
+            // Camera pan passed to visuals is sum of 
+            // finalized and in progress camera panning
             ImVec2 offset = ImVec2(
-                drag.x + camera_pan.x,
-                drag.y + camera_pan.y);
+                camera_pan.x - drag.x,
+                camera_pan.y - drag.y);
 
             LoRISE(
                 show_lorise,

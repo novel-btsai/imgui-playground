@@ -15,10 +15,26 @@ struct Agent
     static const ImU32 DEAD_COLOR = IM_COL32(255, 0, 0, 255);
     static const ImU32 ALIVE_COLOR = IM_COL32(0, 255, 0, 255);
     static const ImU32 TASKED_COLOR = IM_COL32(3, 252, 236, 255);
+    static constexpr float ICON_SIZE = 10.0f;
 
     std::string name;
     bool air;
     bool dead;
+    ImVec2 pos;
+    ImU32 color;
+};
+
+/**
+ * @brief Tactic info. Would be replaced by the actual tactic class.
+ */
+struct Tactic
+{
+    static const ImU32 COMPLETE_COLOR = IM_COL32(0, 255, 0, 255);
+    static const ImU32 FAILED_COLOR = IM_COL32(255, 0, 0, 255);
+    static const ImU32 WIP_COLOR = IM_COL32(255, 255, 255, 255);
+    static constexpr float ICON_SIZE = 20.0f;
+
+    std::string name;
     ImVec2 pos;
     ImU32 color;
 };
@@ -30,9 +46,6 @@ void DrawAgent(
     const Agent& agent,
     const ImVec2& offset)
 {
-    // Size of the agent icon
-    const float size = 10.0f;
-
     // Apply positional offset
     ImVec2 pos = ImVec2(
         agent.pos.x - offset.x,
@@ -41,7 +54,7 @@ void DrawAgent(
     // Name needs to be centered below the given position
     ImVec2 text_dims = ImGui::CalcTextSize(agent.name.c_str());
     ImGui::SetCursorPosX(pos.x - (text_dims.x / 2));
-    ImGui::SetCursorPosY(pos.y - (text_dims.y / 2) + (size * 2));
+    ImGui::SetCursorPosY(pos.y - (text_dims.y / 2) + (Agent::ICON_SIZE * 2));
     ImGui::TextColored(
         (ImColor)agent.color,
         agent.name.c_str());
@@ -49,26 +62,12 @@ void DrawAgent(
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddNgon(
         pos,
-        size,
+        Agent::ICON_SIZE,
         agent.color,
         agent.air ?
             3 : 
             4);
 }
-
-/**
- * @brief Tactic info. Would be replaced by the actual tactic class.
- */
-struct Tactic
-{
-    static const ImU32 COMPLETE_COLOR = IM_COL32(0, 255, 0, 255);
-    static const ImU32 FAILED_COLOR = IM_COL32(255, 0, 0, 255);
-    static const ImU32 WIP_COLOR = IM_COL32(255, 255, 255, 255);
-
-    std::string name;
-    ImVec2 pos;
-    ImU32 color;
-};
 
 /**
  * @brief Draw a tactic icon at the designated location.
@@ -77,9 +76,6 @@ void DrawTacticIcon(
     const Tactic& tactic,
     const ImVec2& offset)
 {
-    // Size of the tactic icon
-    const float size = 20.0f;
-
     // Apply positional offset
     ImVec2 pos = ImVec2(
         tactic.pos.x - offset.x,
@@ -96,7 +92,7 @@ void DrawTacticIcon(
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddCircle(
         pos,
-        size,
+        Tactic::ICON_SIZE,
         tactic.color);
 }
 
@@ -223,6 +219,7 @@ void LoRISE(
         "LO-RISE",
         &show_lorise,
             ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoScrollbar |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
 
