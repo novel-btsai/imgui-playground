@@ -1,55 +1,26 @@
 #pragma once
 
+// ImGui includes
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+// Lo-RISE includes
 #include "controls.h"
+#include "interactables.h"
 #include "utils/utils.h"
-
-/**
- * @brief Agent info. Would be replaced by the actual agent class.
- */
-struct Agent
-{
-    static const ImU32 DEAD_COLOR = IM_COL32(255, 0, 0, 255);
-    static const ImU32 ALIVE_COLOR = IM_COL32(0, 255, 0, 255);
-    static const ImU32 TASKED_COLOR = IM_COL32(3, 252, 236, 255);
-    static constexpr float ICON_SIZE = 10.0f;
-
-    std::string name;
-    bool air;
-    bool dead;
-    ImVec2 pos;
-    ImU32 color;
-};
-
-/**
- * @brief Tactic info. Would be replaced by the actual tactic class.
- */
-struct Tactic
-{
-    static const ImU32 COMPLETE_COLOR = IM_COL32(0, 255, 0, 255);
-    static const ImU32 FAILED_COLOR = IM_COL32(255, 0, 0, 255);
-    static const ImU32 WIP_COLOR = IM_COL32(255, 255, 255, 255);
-    static constexpr float ICON_SIZE = 20.0f;
-
-    std::string name;
-    ImVec2 pos;
-    ImU32 color;
-};
 
 /**
  * @brief Draw an agent at the designated location.
  */
 void DrawAgent(
     const Agent& agent,
-    const ImVec2& offset)
+    const ImVec2& camera_pan)
 {
-    // Apply positional offset
+    // Apply camera pan offset 
     ImVec2 pos = ImVec2(
-        agent.pos.x - offset.x,
-        agent.pos.y - offset.y);
+        agent.pos.x - camera_pan.x,
+        agent.pos.y - camera_pan.y);
 
     // Name needs to be centered below the given position
     ImVec2 text_dims = ImGui::CalcTextSize(agent.name.c_str());
@@ -74,12 +45,12 @@ void DrawAgent(
  */
 void DrawTacticIcon(
     const Tactic& tactic,
-    const ImVec2& offset)
+    const ImVec2& camera_pan)
 {
-    // Apply positional offset
+    // Apply camera pan offset 
     ImVec2 pos = ImVec2(
-        tactic.pos.x - offset.x,
-        tactic.pos.y - offset.y);
+        tactic.pos.x - camera_pan.x,
+        tactic.pos.y - camera_pan.y);
 
     // Name needs to be centered on given position
     ImVec2 text_dims = ImGui::CalcTextSize(tactic.name.c_str());
@@ -99,7 +70,7 @@ void DrawTacticIcon(
 /**
  * @brief Draws the grid background.
  */
-void DrawGrid(const ImVec2& offset)
+void DrawGrid(const ImVec2& camera_pan)
 {
     const float cell_size = 100.0f;
     const ImU32 grid_color = IM_COL32(255, 255, 255, 20);
@@ -117,23 +88,23 @@ void DrawGrid(const ImVec2& offset)
     //  
     // Top-left corner (top of c0) is origin.
     //
-    // If cell size is 100 and the offset is -220,
+    // If cell size is 100 and the pan offset is -220,
     // then the first column on the left would be c-2 at -200
     // and the last column on the right would be c1 at 100.
     //
-    // If cell size is 100 and the offset is 220,
+    // If cell size is 100 and the pan offset is 220,
     // then the first column on the left would be c3 at 300
     // and the last column on the right would be c+2 at 600.
     // 
     // Note:
-    // When offset is negative, we include the (offset / cell_size) index,
+    // When pan offset is negative, we include the (camera_pan / cell_size) index,
     // which is c-2 in the example.
-    // When offset is positive, we exclude it, which is c2 in the example.
+    // When pan offset is positive, we exclude it, which is c2 in the example.
 
     // Add 1 to the end index to include all desired indices
-    int ii_start = (offset.x / cell_size) + (offset.x > 0 ? 1 : 0);
+    int ii_start = (camera_pan.x / cell_size) + (camera_pan.x > 0 ? 1 : 0);
     int ii_end = (window_dims.x / cell_size) + ii_start + 1;
-    int jj_start = offset.y / cell_size + (offset.y > 0 ? 1 : 0);
+    int jj_start = camera_pan.y / cell_size + (camera_pan.y > 0 ? 1 : 0);
     int jj_end = (window_dims.y / cell_size) + jj_start + 1;
 
     // Vertical lines
@@ -141,7 +112,7 @@ void DrawGrid(const ImVec2& offset)
         ii < ii_end;
         ii++)
     {
-        float x = (ii * cell_size) - offset.x;
+        float x = (ii * cell_size) - camera_pan.x;
 
         // Ignore columns that are out of view
         if (x < 0 ||
@@ -150,7 +121,7 @@ void DrawGrid(const ImVec2& offset)
             continue;
         }
 
-        // Columns ignore vertical offset because we 
+        // Columns ignore vertical pan offset because we 
         // always draw it from top to bottom of window
         ImVec2 top = ImVec2(
             x,
@@ -171,7 +142,7 @@ void DrawGrid(const ImVec2& offset)
         jj < jj_end;
         jj++)
     {
-        float y = (jj * cell_size) - offset.y;
+        float y = (jj * cell_size) - camera_pan.y;
 
         // Ignore rows that are out of view
         if (y < 0 ||
@@ -180,7 +151,7 @@ void DrawGrid(const ImVec2& offset)
             continue;
         }
 
-        // Rows ignore horizontal offset because we 
+        // Rows ignore horizontal pan offset because we 
         // always draw left to right of window
         ImVec2 left = ImVec2(
             0, 
@@ -202,7 +173,7 @@ void DrawGrid(const ImVec2& offset)
  */
 void LoRISE(
     bool& show_lorise,
-    ImVec2& offset,
+    ImVec2& camera_pan,
     const ImGuiIO& io,
     const std::vector<Agent>& agents,
     const std::vector<Tactic>& tactics)
@@ -223,20 +194,20 @@ void LoRISE(
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
 
-    DrawGrid(offset);
+    DrawGrid(camera_pan);
 
     for (Agent agent : agents)
     {
         DrawAgent(
             agent,
-            offset);
+            camera_pan);
     }
 
     for (Tactic tactic : tactics)
     {
         DrawTacticIcon(
             tactic,
-            offset);
+            camera_pan);
     }
 
     ImGui::End();

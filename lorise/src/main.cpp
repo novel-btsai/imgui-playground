@@ -7,20 +7,26 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
+// Standard library includes
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+
+// ImGui includes
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include <stdio.h>
-#include <vector>
-#include "main_menu.h"
-#include "lorise.h"
-
+// Backend includes
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
+
+// Lo-RISE includes
+#include "main_menu.h"
+#include "lorise.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -120,11 +126,13 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Our state
-    bool show_main_menu = true;         // Display main menu
-    bool show_lorise = false;           // Display Lo-RISE window
-    ImVec2 camera_pan = ImVec2(0, 0);   // Finalized camera pan offset
+    bool show_main_menu = true;             // Display main menu
+    bool show_lorise = false;               // Display Lo-RISE window
+    Action current_action = Action::Idle;   // Current action the user is performing
+    ImVec2 camera_pan = ImVec2(0, 0);       // Finalized camera pan offset
+    Tactic* selected_tactic = NULL;         // Tactic currently being interacted with
 
-    std::vector<Agent> agents = {       // List of agents to visualize
+    std::vector<Agent> agents = {           // List of agents to visualize
         {
             "ARNOLD",
             false,
@@ -140,7 +148,7 @@ int main(int, char**)
             Agent::TASKED_COLOR
         }};
 
-    std::vector<Tactic> tactics = {     // List of tactics to visualize
+    std::vector<Tactic> tactics = {         // List of tactics to visualize
         {
             "ISR",
             ImVec2(100, 100),
@@ -189,18 +197,51 @@ int main(int, char**)
 
         if (show_lorise == true)
         {
-            // Handle input before drawing environment
-            ImVec2 drag = Pan(camera_pan);
-            
+            ImVec2 camera_drag = ImVec2(0, 0);
+
+            // Left mouse hold handling
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == true ||
+                ImGui::IsMouseReleased(ImGuiMouseButton_Left) == true)
+            {
+                // TODO:
+                // can add if modifier_key is down, then draw
+
+                // TODO:
+                // only apply drag to struct position when released...?
+                // otherwise its moving too omuch...
+                DragTacticIcon(
+                    current_action,
+                    camera_pan,
+                    tactics,
+                    selected_tactic);
+
+                camera_drag = PanCamera(
+                    current_action,
+                    camera_pan);
+
+                if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) == true)
+                {
+                    selected_tactic = NULL;
+                    current_action = Action::Idle;
+                }
+            }
+
+            // Right mouse hold handling
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Right) == true ||
+                ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
+            {
+                // do right mouse things like zoom
+            }
+
             // Camera pan passed to visuals is sum of 
             // finalized and in progress camera panning
-            ImVec2 offset = ImVec2(
-                camera_pan.x - drag.x,
-                camera_pan.y - drag.y);
+            ImVec2 full_camera_pan = ImVec2(
+                camera_pan.x - camera_drag.x,
+                camera_pan.y - camera_drag.y);
 
             LoRISE(
                 show_lorise,
-                offset,
+                full_camera_pan,
                 io,
                 agents,
                 tactics);
