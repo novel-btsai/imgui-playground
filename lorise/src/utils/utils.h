@@ -1,14 +1,66 @@
 #pragma once
 
+// Standard library includes
 #include <functional> 
 
+// ImGui includes
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+// Lo-RISE includes
 #define _CRT_SECURE_NO_WARNINGS
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+/**
+ * @brief Visual debug tool to draw an X on a point.
+ */
+void DrawX(
+    ImVec2 pos,
+    ImU32 color = IM_COL32(255, 255, 255, 255))
+{
+    const float size = 5;
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    ImVec2 top_left = ImVec2(
+        pos.x - size,
+        pos.y - size);
+
+    ImVec2 top_right = ImVec2(
+        pos.x + size,
+        pos.y - size);
+
+    ImVec2 bottom_left = ImVec2(
+        pos.x - size,
+        pos.y + size);
+
+    ImVec2 bottom_right = ImVec2(
+        pos.x + size,
+        pos.y + size);
+
+    draw_list->AddLine(
+        top_left,
+        bottom_right,
+        color);
+
+    draw_list->AddLine(
+        top_right,
+        bottom_left,
+        color);
+}
+
+/**
+ * @brief Get the squared distance between 2 ImVec2 points.
+ */
+double DistanceSquared(
+    ImVec2 a,
+    ImVec2 b)
+{
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+    return (dx * dx) + (dy * dy);
+}
 
 /**
  * @brief Create colored text that is custom aligned.
