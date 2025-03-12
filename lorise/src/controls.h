@@ -92,7 +92,7 @@ void DragTacticIcon(
     }
 
     // Nothing to do if no tactic
-    selected_tactic = //selected_tactic ?: 
+    selected_tactic = selected_tactic ?: 
         GetTacticUnderMouse(
             camera_pan,
             tactics);
@@ -113,10 +113,13 @@ void DragTacticIcon(
         return;
     }
 
-    // Apply drag to tactic position
-    ImVec2 drag = ImGui::GetMouseDragDelta(binding);
-    selected_tactic->pos.x += drag.x;
-    selected_tactic->pos.y += drag.y;
+    // Apply drag to tactic position on release
+    if (ImGui::IsMouseReleased(binding) == true)
+    {
+        ImVec2 drag = ImGui::GetMouseDragDelta(binding);
+        selected_tactic->pos.x += drag.x;
+        selected_tactic->pos.y += drag.y;
+    }
 }
 
 /**

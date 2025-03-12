@@ -206,9 +206,6 @@ int main(int, char**)
                 // TODO:
                 // can add if modifier_key is down, then draw
 
-                // TODO:
-                // only apply drag to struct position when released...?
-                // otherwise its moving too omuch...
                 DragTacticIcon(
                     current_action,
                     camera_pan,
@@ -219,6 +216,9 @@ int main(int, char**)
                     current_action,
                     camera_pan);
 
+                // Common action cleanup on mouse release,
+                // also prevents actions from resetting to 
+                // idle and prematurely starting other actions.
                 if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) == true)
                 {
                     selected_tactic = NULL;
@@ -241,7 +241,9 @@ int main(int, char**)
 
             LoRISE(
                 show_lorise,
+                current_action,
                 full_camera_pan,
+                selected_tactic,
                 io,
                 agents,
                 tactics);

@@ -45,12 +45,21 @@ void DrawAgent(
  */
 void DrawTacticIcon(
     const Tactic& tactic,
-    const ImVec2& camera_pan)
+    const ImVec2& camera_pan,
+    bool dragging = false)
 {
     // Apply camera pan offset 
     ImVec2 pos = ImVec2(
         tactic.pos.x - camera_pan.x,
         tactic.pos.y - camera_pan.y);
+
+    // Account for user dragging a tactic
+    if (dragging == true)
+    {
+        ImVec2 drag = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+        pos.x += drag.x;
+        pos.y += drag.y;
+    }
 
     // Name needs to be centered on given position
     ImVec2 text_dims = ImGui::CalcTextSize(tactic.name.c_str());
@@ -173,7 +182,9 @@ void DrawGrid(const ImVec2& camera_pan)
  */
 void LoRISE(
     bool& show_lorise,
-    ImVec2& camera_pan,
+    const Action& current_action,
+    const ImVec2& camera_pan,
+    Tactic*& selected_tactic,
     const ImGuiIO& io,
     const std::vector<Agent>& agents,
     const std::vector<Tactic>& tactics)
@@ -205,9 +216,16 @@ void LoRISE(
 
     for (Tactic tactic : tactics)
     {
+        // TODO:
+        // Will need a proper operator== for tactics instead of name matching
+        bool dragging = 
+            current_action == Action::DragTactic &&
+            selected_tactic->name == tactic.name;
+
         DrawTacticIcon(
             tactic,
-            camera_pan);
+            camera_pan,
+            dragging);
     }
 
     ImGui::End();
