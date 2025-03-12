@@ -51,15 +51,17 @@ void DrawX(
 }
 
 /**
- * @brief Get the squared distance between 2 ImVec2 points.
+ * @brief Get the distance between 2 ImVec2 points.
  */
-double DistanceSquared(
+double Distance(
     ImVec2 a,
-    ImVec2 b)
+    ImVec2 b,
+    bool squared = false)
 {
     double dx = a.x - b.x;
     double dy = a.y - b.y;
-    return (dx * dx) + (dy * dy);
+    double dist_2 = (dx * dx) + (dy * dy);
+    return squared ? dist_2 : sqrt(dist_2);
 }
 
 /**

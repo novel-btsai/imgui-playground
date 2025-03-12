@@ -1,6 +1,7 @@
 #pragma once
 
 // Standard library includes
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -47,9 +48,10 @@ Tactic* GetTacticUnderMouse(
             tactic.pos.x - camera_pan.x,
             tactic.pos.y - camera_pan.y);
             
-        double dist_2 = DistanceSquared(
+        double dist_2 = Distance(
             tactic_pos,
-            mouse_pos);
+            mouse_pos,
+            true);
 
         // Ignore if we aren't inside the icon
         if (dist_2 > Tactic::ICON_SIZE * Tactic::ICON_SIZE)
@@ -167,4 +169,53 @@ ImVec2 PanCamera(
     }
 
     return drag;
+}
+
+/**
+ * @brief Zoom functionality that tracks the magnification factor.
+ */
+float ZoomCamera(
+    Action& current_action,
+    const ImVec2& camera_pan,
+    float& camera_zoom)
+{
+    // Zoom binding
+    const ImGuiMouseButton binding = ImGuiMouseButton_Right;
+
+    // Set action to zoom
+    if (current_action == Action::Idle)
+    {
+        current_action = Action::Zoom;
+    }
+    else if (current_action != Action::Zoom)
+    {
+        return 1;
+    }
+
+    // Calculate zoom factor
+    ImVec2 drag = ImGui::GetMouseDragDelta(binding);
+
+    // Up = Zoom-in, Down = Zoom-out
+    // Top-left corner is origin
+    const float sensitivity = 100;
+    float zoom = drag.y <= 0 ?
+        1 - drag.y / sensitivity :
+        1 - (drag.y / (2 * sensitivity));
+
+    const float max_zoom = 2;
+    const float min_zoom = 0.5;
+    zoom = std::max(
+        min_zoom / camera_zoom,
+        std::min(
+            zoom,
+            max_zoom / camera_zoom));
+
+    // Apply zoom factor
+    if (ImGui::IsMouseReleased(binding) == true)
+    {
+        camera_zoom *= zoom;
+        zoom = 1;
+    }
+
+    return zoom;
 }

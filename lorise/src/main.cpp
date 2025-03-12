@@ -130,6 +130,7 @@ int main(int, char**)
     bool show_lorise = false;               // Display Lo-RISE window
     Action current_action = Action::Idle;   // Current action the user is performing
     ImVec2 camera_pan = ImVec2(0, 0);       // Finalized camera pan offset
+    float camera_zoom = 1;                  // Finalized camera zoom factor
     Tactic* selected_tactic = NULL;         // Tactic currently being interacted with
 
     std::vector<Agent> agents = {           // List of agents to visualize
@@ -197,7 +198,8 @@ int main(int, char**)
 
         if (show_lorise == true)
         {
-            ImVec2 camera_drag = ImVec2(0, 0);
+            ImVec2 pan_drag = ImVec2(0, 0);
+            float zoom_drag = 1;
 
             // Left mouse hold handling
             if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == true ||
@@ -212,7 +214,7 @@ int main(int, char**)
                     tactics,
                     selected_tactic);
 
-                camera_drag = PanCamera(
+                pan_drag = PanCamera(
                     current_action,
                     camera_pan);
 
@@ -230,19 +232,35 @@ int main(int, char**)
             if (ImGui::IsMouseDown(ImGuiMouseButton_Right) == true ||
                 ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
             {
-                // do right mouse things like zoom
+                zoom_drag = ZoomCamera(
+                    current_action,
+                    camera_pan,
+                    camera_zoom);
+
+                // Common action cleanup on mouse release,
+                // also prevents actions from resetting to 
+                // idle and prematurely starting other actions.
+                if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
+                {
+                    selected_tactic = NULL;
+                    current_action = Action::Idle;
+                }
             }
 
             // Camera pan passed to visuals is sum of 
             // finalized and in progress camera panning
             ImVec2 full_camera_pan = ImVec2(
-                camera_pan.x - camera_drag.x,
-                camera_pan.y - camera_drag.y);
+                camera_pan.x - pan_drag.x,
+                camera_pan.y - pan_drag.y);
+
+            float full_camera_zoom = camera_zoom * zoom_drag;
+            std::cout << "Zoom: " << camera_zoom << ", Drag Zoom: " << zoom_drag << std::endl;
 
             LoRISE(
                 show_lorise,
                 current_action,
                 full_camera_pan,
+                full_camera_zoom,
                 selected_tactic,
                 io,
                 agents,

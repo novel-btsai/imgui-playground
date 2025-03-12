@@ -15,7 +15,8 @@
  */
 void DrawAgent(
     const Agent& agent,
-    const ImVec2& camera_pan)
+    const ImVec2 camera_pan,
+    const float camera_zoom)
 {
     // Apply camera pan offset 
     ImVec2 pos = ImVec2(
@@ -45,7 +46,8 @@ void DrawAgent(
  */
 void DrawTacticIcon(
     const Tactic& tactic,
-    const ImVec2& camera_pan,
+    const ImVec2 camera_pan,
+    const float camera_zoom,
     bool dragging = false)
 {
     // Apply camera pan offset 
@@ -56,6 +58,9 @@ void DrawTacticIcon(
     // Account for user dragging a tactic
     if (dragging == true)
     {
+        // TODO:
+        // Bindings for each action need to be accessible anywhere.
+        // Currently they are local vars in the respective action fnc.
         ImVec2 drag = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
         pos.x += drag.x;
         pos.y += drag.y;
@@ -79,7 +84,9 @@ void DrawTacticIcon(
 /**
  * @brief Draws the grid background.
  */
-void DrawGrid(const ImVec2& camera_pan)
+void DrawGrid(
+    const ImVec2 camera_pan,
+    const float camera_zoom)
 {
     const float cell_size = 100.0f;
     const ImU32 grid_color = IM_COL32(255, 255, 255, 20);
@@ -182,9 +189,10 @@ void DrawGrid(const ImVec2& camera_pan)
  */
 void LoRISE(
     bool& show_lorise,
-    const Action& current_action,
-    const ImVec2& camera_pan,
-    Tactic*& selected_tactic,
+    const Action current_action,
+    const ImVec2 camera_pan,
+    const float camera_zoom,
+    const Tactic* selected_tactic,
     const ImGuiIO& io,
     const std::vector<Agent>& agents,
     const std::vector<Tactic>& tactics)
@@ -205,13 +213,17 @@ void LoRISE(
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
 
-    DrawGrid(camera_pan);
+    ImGui::Text("Zoom: %f", camera_zoom);
+    DrawGrid(
+        camera_pan,
+        camera_zoom);
 
     for (Agent agent : agents)
     {
         DrawAgent(
             agent,
-            camera_pan);
+            camera_pan,
+            camera_zoom);
     }
 
     for (Tactic tactic : tactics)
@@ -225,6 +237,7 @@ void LoRISE(
         DrawTacticIcon(
             tactic,
             camera_pan,
+            camera_zoom,
             dragging);
     }
 
