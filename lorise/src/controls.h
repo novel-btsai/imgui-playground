@@ -130,7 +130,8 @@ void DragTacticIcon(
  */
 ImVec2 PanCamera(
     Action& current_action,
-    ImVec2& camera_pan)
+    ImVec2& camera_pan,
+    const float camera_zoom)
 {
     // Pan binding
     const ImGuiMouseButton binding = ImGuiMouseButton_Left;
@@ -150,6 +151,8 @@ ImVec2 PanCamera(
     // will have a final drag delta still 
     // (See ImGui::GetMouseDragDelta() description)
     ImVec2 drag = ImGui::GetMouseDragDelta(binding);
+    drag.x /= camera_zoom;
+    drag.y /= camera_zoom;
 
     if (drag.x == 0 &&
         drag.y == 0)
@@ -176,7 +179,6 @@ ImVec2 PanCamera(
  */
 float ZoomCamera(
     Action& current_action,
-    const ImVec2& camera_pan,
     float& camera_zoom)
 {
     // Zoom binding

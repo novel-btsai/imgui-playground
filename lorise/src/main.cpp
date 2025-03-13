@@ -216,7 +216,8 @@ int main(int, char**)
 
                 pan_drag = PanCamera(
                     current_action,
-                    camera_pan);
+                    camera_pan,
+                    camera_zoom);
 
                 // Common action cleanup on mouse release,
                 // also prevents actions from resetting to 
@@ -234,7 +235,6 @@ int main(int, char**)
             {
                 zoom_drag = ZoomCamera(
                     current_action,
-                    camera_pan,
                     camera_zoom);
 
                 // Common action cleanup on mouse release,
@@ -254,7 +254,6 @@ int main(int, char**)
                 camera_pan.y - pan_drag.y);
 
             float full_camera_zoom = camera_zoom * zoom_drag;
-            std::cout << "Zoom: " << camera_zoom << ", Drag Zoom: " << zoom_drag << std::endl;
 
             LoRISE(
                 show_lorise,

@@ -93,42 +93,38 @@ void DrawGrid(
     ImVec2 window_dims = ImGui::GetWindowSize();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-    // Example for columns indices:
-    //
-    // c-2 c-1 c0  c1  c2  c3  c4  c+1 c+2
-    //           _______________
-    //  |   |   |___|___|___|___|   |   |
-    //  |   |   |___|___|___|___|   |   |
-    //  |   |   |___|___|___|___|   |   |
-    //  |   |   |___|___|___|___|   |   |
-    //  
-    // Top-left corner (top of c0) is origin.
-    //
-    // If cell size is 100 and the pan offset is -220,
-    // then the first column on the left would be c-2 at -200
-    // and the last column on the right would be c1 at 100.
-    //
-    // If cell size is 100 and the pan offset is 220,
-    // then the first column on the left would be c3 at 300
-    // and the last column on the right would be c+2 at 600.
-    // 
-    // Note:
-    // When pan offset is negative, we include the (camera_pan / cell_size) index,
-    // which is c-2 in the example.
-    // When pan offset is positive, we exclude it, which is c2 in the example.
+    // Reference point for zoom
+    ImVec2 center = ImVec2(
+        window_dims.x / 2.0f,
+        window_dims.y / 2.0f);
 
-    // Add 1 to the end index to include all desired indices
-    int ii_start = (camera_pan.x / cell_size) + (camera_pan.x > 0 ? 1 : 0);
-    int ii_end = (window_dims.x / cell_size) + ii_start + 1;
-    int jj_start = camera_pan.y / cell_size + (camera_pan.y > 0 ? 1 : 0);
-    int jj_end = (window_dims.y / cell_size) + jj_start + 1;
+    // Find the screen offset from the zoom
+    ImVec2 zoomed_window_dims = ImVec2(
+        window_dims.x / camera_zoom,
+        window_dims.y / camera_zoom);
+
+    ImVec2 zoom_offsets = ImVec2(
+        (zoomed_window_dims.x - window_dims.x) / 2,
+        (zoomed_window_dims.y - window_dims.y) / 2);
+
+    // Use camera pan and zoom offset to find 
+    // which col/row begins at the top left corner.
+    // Then calculate how many scaled cols/rows from there.
+    // Add 2 to account for any integer division 
+    // rounding and to include the last index.
+    int col_start = (camera_pan.x - zoom_offsets.x) / cell_size;
+    int col_end = col_start + (window_dims.x / (cell_size * camera_zoom)) + 2;
+    int row_start = (camera_pan.y - zoom_offsets.y) / cell_size;
+    int row_end = row_start + (window_dims.y / (cell_size * camera_zoom)) + 2;
 
     // Vertical lines
-    for (int ii = ii_start;
-        ii < ii_end;
+    for (int ii = col_start;
+        ii < col_end;
         ii++)
     {
+        // X-position with pan and zoom factor
         float x = (ii * cell_size) - camera_pan.x;
+        x = center.x + (x - center.x) * camera_zoom;
 
         // Ignore columns that are out of view
         if (x < 0 ||
@@ -154,11 +150,13 @@ void DrawGrid(
     }
 
     // Horizontal lines
-    for (int jj = jj_start;
-        jj < jj_end;
+    for (int jj = row_start;
+        jj < row_end;
         jj++)
     {
+        // Y-position with pan and zoom factor
         float y = (jj * cell_size) - camera_pan.y;
+        y = center.y + (y - center.y) * camera_zoom;
 
         // Ignore rows that are out of view
         if (y < 0 ||
