@@ -18,10 +18,19 @@ void DrawAgent(
     const float camera_zoom,
     const Agent& agent)
 {
+    ImVec2 window_dims = ImGui::GetWindowSize();
+    ImVec2 center = ImVec2(
+        window_dims.x / 2,
+        window_dims.y / 2);
+
     // Apply camera pan offset 
     ImVec2 pos = ImVec2(
         agent.pos.x - camera_pan.x,
         agent.pos.y - camera_pan.y);
+
+    // Apply zoom
+    pos.x = center.x + (pos.x - center.x) * camera_zoom;
+    pos.y = center.y + (pos.y - center.y) * camera_zoom;
 
     // Name needs to be centered below the given position
     ImVec2 text_dims = ImGui::CalcTextSize(agent.name.c_str());
