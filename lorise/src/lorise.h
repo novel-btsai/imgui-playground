@@ -14,9 +14,9 @@
  * @brief Draw an agent at the designated location.
  */
 void DrawAgent(
-    const Agent& agent,
     const ImVec2 camera_pan,
-    const float camera_zoom)
+    const float camera_zoom,
+    const Agent& agent)
 {
     // Apply camera pan offset 
     ImVec2 pos = ImVec2(
@@ -45,15 +45,24 @@ void DrawAgent(
  * @brief Draw a tactic icon at the designated location.
  */
 void DrawTacticIcon(
-    const Tactic& tactic,
     const ImVec2 camera_pan,
     const float camera_zoom,
+    const Tactic& tactic,
     bool dragging = false)
 {
+    ImVec2 window_dims = ImGui::GetWindowSize();
+    ImVec2 center = ImVec2(
+        window_dims.x / 2,
+        window_dims.y / 2);
+
     // Apply camera pan offset 
     ImVec2 pos = ImVec2(
         tactic.pos.x - camera_pan.x,
         tactic.pos.y - camera_pan.y);
+    
+    // Apply camera zoom
+    pos.x = center.x + (pos.x - center.x) * camera_zoom;
+    pos.y = center.y + (pos.y - center.y) * camera_zoom;
 
     // Account for user dragging a tactic
     if (dragging == true)
@@ -77,7 +86,7 @@ void DrawTacticIcon(
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddCircle(
         pos,
-        Tactic::ICON_SIZE,
+        Tactic::ICON_SIZE * camera_zoom,
         tactic.color);
 }
 
@@ -187,11 +196,11 @@ void DrawGrid(
  */
 void LoRISE(
     bool& show_lorise,
-    const Action current_action,
+    const ImGuiIO& io,
     const ImVec2 camera_pan,
     const float camera_zoom,
+    const Action current_action,
     const Tactic* selected_tactic,
-    const ImGuiIO& io,
     const std::vector<Agent>& agents,
     const std::vector<Tactic>& tactics)
 {
@@ -211,7 +220,6 @@ void LoRISE(
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove);
 
-    ImGui::Text("Zoom: %f", camera_zoom);
     DrawGrid(
         camera_pan,
         camera_zoom);
@@ -219,9 +227,9 @@ void LoRISE(
     for (Agent agent : agents)
     {
         DrawAgent(
-            agent,
             camera_pan,
-            camera_zoom);
+            camera_zoom,
+            agent);
     }
 
     for (Tactic tactic : tactics)
@@ -233,9 +241,9 @@ void LoRISE(
             selected_tactic->name == tactic.name;
 
         DrawTacticIcon(
-            tactic,
             camera_pan,
             camera_zoom,
+            tactic,
             dragging);
     }
 

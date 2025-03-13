@@ -209,15 +209,17 @@ int main(int, char**)
                 // can add if modifier_key is down, then draw
 
                 DragTacticIcon(
-                    current_action,
+                    io,
                     camera_pan,
+                    camera_zoom,
+                    current_action,
                     tactics,
                     selected_tactic);
 
                 pan_drag = PanCamera(
-                    current_action,
                     camera_pan,
-                    camera_zoom);
+                    camera_zoom,
+                    current_action);
 
                 // Common action cleanup on mouse release,
                 // also prevents actions from resetting to 
@@ -230,12 +232,12 @@ int main(int, char**)
             }
 
             // Right mouse hold handling
-            if (ImGui::IsMouseDown(ImGuiMouseButton_Right) == true ||
+            else if (ImGui::IsMouseDown(ImGuiMouseButton_Right) == true ||
                 ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
             {
                 zoom_drag = ZoomCamera(
-                    current_action,
-                    camera_zoom);
+                    camera_zoom,
+                    current_action);
 
                 // Common action cleanup on mouse release,
                 // also prevents actions from resetting to 
@@ -257,11 +259,11 @@ int main(int, char**)
 
             LoRISE(
                 show_lorise,
-                current_action,
+                io,
                 full_camera_pan,
                 full_camera_zoom,
+                current_action,
                 selected_tactic,
-                io,
                 agents,
                 tactics);
         }

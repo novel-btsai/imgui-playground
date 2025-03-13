@@ -29,15 +29,24 @@ enum Action
  * @brief Return a tactic if one is under the mouse.
  */
 Tactic* GetTacticUnderMouse(
-    const ImVec2& camera_pan,
+    const ImGuiIO& io,
+    const ImVec2 camera_pan,
+    const float camera_zoom,
     std::vector<Tactic>& tactics)
 {
     Tactic* ret = NULL;
     double best_dist_2 = -1;
 
     ImVec2 mouse_pos = ImGui::GetMousePos();
+    
+    // NOTE:
+    // Can't use ImGui::GetWindowSize() because 
+    // Lo-RISE window hasn't been created yet
+    ImVec2 window_dims = io.DisplaySize;
+    ImVec2 center = ImVec2(
+        window_dims.x / 2,
+        window_dims.y / 2);
 
-    // for (Tactic tactic : tactics)
     for (int ii = 0;
         ii < tactics.size();
         ii++)
@@ -47,14 +56,19 @@ Tactic* GetTacticUnderMouse(
         ImVec2 tactic_pos = ImVec2(
             tactic.pos.x - camera_pan.x,
             tactic.pos.y - camera_pan.y);
-            
+
+        tactic_pos.x = center.x + (tactic_pos.x - center.x) * camera_zoom;
+        tactic_pos.y = center.y + (tactic_pos.y - center.y) * camera_zoom;
+
         double dist_2 = Distance(
             tactic_pos,
             mouse_pos,
             true);
 
+        float size = Tactic::ICON_SIZE * camera_zoom;
+
         // Ignore if we aren't inside the icon
-        if (dist_2 > Tactic::ICON_SIZE * Tactic::ICON_SIZE)
+        if (dist_2 > size * size)
         {
             continue;
         }
@@ -78,8 +92,10 @@ Tactic* GetTacticUnderMouse(
  * @brief Check if mouse is trying to drag a tactic.
  */
 void DragTacticIcon(
+    const ImGuiIO& io,
+    const ImVec2 camera_pan,
+    const float camera_zoom,
     Action& current_action,
-    const ImVec2& camera_pan,
     std::vector<Tactic>& tactics,
     Tactic*& selected_tactic)
 {
@@ -96,7 +112,9 @@ void DragTacticIcon(
     // Nothing to do if no tactic
     selected_tactic = selected_tactic ?: 
         GetTacticUnderMouse(
+            io,
             camera_pan,
+            camera_zoom,
             tactics);
 
     if (selected_tactic == NULL)
@@ -119,8 +137,8 @@ void DragTacticIcon(
     if (ImGui::IsMouseReleased(binding) == true)
     {
         ImVec2 drag = ImGui::GetMouseDragDelta(binding);
-        selected_tactic->pos.x += drag.x;
-        selected_tactic->pos.y += drag.y;
+        selected_tactic->pos.x += (drag.x / camera_zoom);
+        selected_tactic->pos.y += (drag.y / camera_zoom);
     }
 }
 
@@ -129,9 +147,9 @@ void DragTacticIcon(
  * Screen coordinates use top-left as origin.
  */
 ImVec2 PanCamera(
-    Action& current_action,
     ImVec2& camera_pan,
-    const float camera_zoom)
+    const float camera_zoom,
+    Action& current_action)
 {
     // Pan binding
     const ImGuiMouseButton binding = ImGuiMouseButton_Left;
@@ -178,8 +196,8 @@ ImVec2 PanCamera(
  * @brief Zoom functionality that tracks the magnification factor.
  */
 float ZoomCamera(
-    Action& current_action,
-    float& camera_zoom)
+    float& camera_zoom,
+    Action& current_action)
 {
     // Zoom binding
     const ImGuiMouseButton binding = ImGuiMouseButton_Right;
